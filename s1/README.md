@@ -6,7 +6,7 @@
 
 使用 HTML 的基础标签来构建你的`自我介绍`网页。
 
-> [参考例子在线体验](https://zhidaofe.github.io/s1/index.html)
+> [参考例子在线体验](https://zhidaofe.github.io/P1-self-introduction/s1/index.html)
 
 ### 项目要求
 
