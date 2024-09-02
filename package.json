@@ -1,0 +1,17 @@
+{
+  "name": "p1-self-introduction",
+  "version": "1.0.0",
+  "description": "之道前端原创项目 - 自我介绍页",
+  "main": "scripts/dev.js",
+  "scripts": {
+    "start": "node scripts/dev.js"
+  },
+  "author": "之道前端",
+  "license": "ISC",
+  "devDependencies": {
+    "chokidar": "^3.6.0",
+    "express": "^5.0.0-beta.2",
+    "open": "^8.4.2",
+    "ws": "^8.18.0"
+  }
+}
