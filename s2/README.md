@@ -22,4 +22,4 @@
 
 ## 开始练习
 
-<这里放引导文案，等脚手架工具完成之后再完善>
+我们针对不同经验的同学提供了相应的[练习指引手册](https://kcnrozgf41zs.feishu.cn/wiki/An7GwvUQrirdvdkJdQ9c4q3Rndd)，你可以按照这个指引手册来练习本项目。
