@@ -1,12 +1,14 @@
 const fs = require('fs');
 const path = require('path');
-const express = require('express');
+const Koa = require('koa');
+const Router = require('@koa/router');
 const open = require('open');
 const chokidar = require('chokidar');
 const http = require('http');
 const WebSocket = require('ws');
 
-const app = express();
+const app = new Koa();
+const router = new Router();
 let port = 3001;
 const projectDir = process.cwd();
 
@@ -36,7 +38,7 @@ const getFoldersWithHtmlFiles = () => {
   return folders;
 };
 
-app.get('/', (_req, res) => {
+router.get('/', async (ctx) => {
   const folders = getFoldersWithHtmlFiles();
   const links = folders.map(({ folder, htmlFile }) => {
     return `<li><a href="/folder/${folder}/${htmlFile}">打开 ${folder}/${htmlFile}</a></li>`;
@@ -57,34 +59,45 @@ app.get('/', (_req, res) => {
     </ul>
   </body>
   </html>`;
-  
-  res.send(html);
+
+  ctx.body = html;
 });
 
-app.get('/folder/:folder/:file', (req, res) => {
-  const folder = req.params.folder.toUpperCase();
-  const filePath = path.join(projectDir, folder, req.params.file);
-  
-  let html = fs.readFileSync(filePath, 'utf8');
-  const wsScript = `
-  <script>
-    const ws = new WebSocket('ws://' + location.host);
-    ws.onmessage = function(event) {
-      if(event.data === 'refresh') {
-        location.reload();
-      }
-    };
-  </script>`;
-  html = html.replace('</body>', `${wsScript}</body>`); // Inject the script before the closing body tag
-  
-  res.send(html);
+router.get('/folder/:folder/(.*)', async (ctx) => {
+  const folder = ctx.params.folder;
+  const nestedPath = ctx.params[0]; // This captures the rest of the path after the folder
+  const filePath = path.join(projectDir, folder, nestedPath); // Combine folder and the nested path
+
+  if (fs.existsSync(filePath)) {
+    if (filePath.endsWith('.html')) {
+      let html = fs.readFileSync(filePath, 'utf8');
+      const wsScript = `
+      <script>
+        const ws = new WebSocket('ws://' + location.host);
+        ws.onmessage = function(event) {
+          if(event.data === 'refresh') {
+            location.reload();
+          }
+        };
+      </script>`;
+      html = html.replace('</body>', `${wsScript}</body>`); // Inject the script before the closing body tag
+      ctx.body = html;
+    } else {
+      ctx.type = path.extname(filePath);
+      ctx.body = fs.createReadStream(filePath);
+    }
+  } else {
+    ctx.status = 404;
+    ctx.body = 'File not found';
+  }
 });
 
-const server = http.createServer(app);
+app.use(router.routes()).use(router.allowedMethods());
+
+const server = http.createServer(app.callback());
 
 const wss = new WebSocket.Server({ server });
 
-// Notify all connected clients about the file change
 const notifyClients = () => {
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {

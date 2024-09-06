@@ -9,8 +9,9 @@
   "author": "之道前端",
   "license": "ISC",
   "devDependencies": {
+    "@koa/router": "^13.0.0",
     "chokidar": "^3.6.0",
-    "express": "^5.0.0-beta.2",
+    "koa": "^2.15.3",
     "open": "^8.4.2",
     "ws": "^8.18.0"
   }
